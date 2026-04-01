@@ -939,6 +939,9 @@ padding-right:5px;
 
 
 <script>
+if(localStorage.getItem("adminAuth") !== "true"){
+    document.documentElement.style.display = "none";
+} 
 
 const API = "https://kokanmeva-backend.onrender.com/api";
 
@@ -947,7 +950,6 @@ let orders = [];
 let expenses = [];
 
 /* 🔐 LOGIN SYSTEM */
-
 function login(){
 
     const pass = document.getElementById("loginPassword").value;
@@ -955,7 +957,10 @@ function login(){
     if(pass === "deo5195@"){
 
         localStorage.setItem("adminAuth", "true");
+        localStorage.setItem("loginTime", Date.now()); // ✅ ADD THIS
+
         document.getElementById("loginScreen").style.display = "none";
+        document.documentElement.style.display = "block";
 
     } else {
 
@@ -965,11 +970,29 @@ function login(){
 }
 
 /* AUTO CHECK */
-
 window.onload = function(){
 
-    if(localStorage.getItem("adminAuth") === "true"){
+    const isAuth = localStorage.getItem("adminAuth");
+
+    if(isAuth === "true"){
         document.getElementById("loginScreen").style.display = "none";
+        document.documentElement.style.display = "block";
+    } else {
+        document.getElementById("loginScreen").style.display = "flex";
+        document.documentElement.style.display = "block";
+    }
+
+    // ✅ MOVE HERE
+    const loginTime = localStorage.getItem("loginTime");
+
+    if(loginTime){
+        const diff = Date.now() - Number(loginTime);
+
+        if(diff > 3600000){ // 1 hour
+            localStorage.removeItem("adminAuth");
+            localStorage.removeItem("loginTime");
+            location.reload();
+        }
     }
 
 };
@@ -2064,6 +2087,7 @@ sorted.map(p=>`
 /* ================= INIT ================= */
 function logout(){
     localStorage.removeItem("adminAuth");
+    localStorage.removeItem("loginTime"); // ✅ ADD THIS
     alert("Logged out successfully");
     location.reload();
 }
